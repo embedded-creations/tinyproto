@@ -232,6 +232,11 @@ public:
     {
         return m_handle;
     }
+    int getStatus()
+    {
+        return tiny_fd_get_status(m_handle);
+    }
+
 
 protected:
     /**
