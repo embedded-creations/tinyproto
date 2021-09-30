@@ -18,6 +18,10 @@
   #define DEBUG_PRINTLN(...) SerialUSB1.println(__VA_ARGS__)
 #endif
 
+#define SLOTS_TO_KEEP_FREE 2
+#define RANDOM_READ_ERRORS 1000 // smaller number (min size S) introduces more errors, 0 disables
+#define RANDOM_WRITE_ERRORS 1000 // smaller number (min size S) introduces more errors, 0 disables
+
 typedef void (*MidUpdateCallbackTp)(void);
 
 template <int S> class FdStream: public tinyproto::IFd, public Stream
@@ -41,8 +45,8 @@ public:
       /* No timeout, since we want non-blocking Stream operations. */
       proto_stream->setTimeout(0);
 
-      /* Lets use 8-bit checksum, available on all platforms */
-      enableCheckSum(); // TODO: upgrade to CRC?
+      // Crc16 is much better than checksum at finding errors
+      enableCrc16();
 
       tinyproto::IFd::begin();
 
@@ -95,7 +99,8 @@ public:
     void onReceive(tinyproto::IPacket &pkt) {
       for(size_t i=0; i<pkt.size(); i++) {
         // TODO: handle overflow
-        rx_stream.write(pkt.getByte());
+        if(rx_stream.write(pkt.getByte()) < 1)
+          DEBUG_PRINTLN("rx_stream.write() fail!");
       }
     }
 
@@ -104,7 +109,18 @@ public:
     }
 
     int readFunc(void *buffer, int size) {
+#if (!RANDOM_READ_ERRORS)
       return proto_stream->readBytes((uint8_t *)buffer, size);
+#else
+      int retval = proto_stream->readBytes((uint8_t *)buffer, size);
+      long randomnum = random(RANDOM_READ_ERRORS);
+      if(!randomnum && retval > 0) {
+        DEBUG_PRINTLN("*** RANDOM READ ERROR ***");
+        return retval-1;
+      } else {
+        return retval;
+      }
+#endif      
     }
 
     static int writeFunc(void *pdata, const void *buffer, int size) {
@@ -112,7 +128,17 @@ public:
     }
 
     int writeFunc(const void *buffer, int size) {
+#if (!RANDOM_WRITE_ERRORS)
       return proto_stream->write((const uint8_t *)buffer, size);
+#else
+      long randomnum = random(RANDOM_WRITE_ERRORS);
+      if(!randomnum && size > 0) {
+        DEBUG_PRINTLN("*** RANDOM WRITE ERROR ***");
+        size--;
+      }
+
+      return proto_stream->write((const uint8_t *)buffer, size);
+#endif      
     }
 
     // this is ambiguous with IFd::write(const char *buf, int size), we must use the Arduino::Print version
@@ -168,6 +194,22 @@ public:
       // we might get readyToSend == true on an empty packet if flush() is called
       if(!out_packet.size())
         readyToSend = false;
+
+      // if we fill up the tinyproto transmit buffer, packets get dropped, keep some free
+      if(readyToSend) {
+          static const uint8_t seq_bits_mask = 0x07;
+          tiny_fd_handle_t handle = getHandle();
+          uint8_t busy_slots = ((uint8_t)(handle->frames.last_ns - handle->frames.confirm_ns) & seq_bits_mask);
+          if(busy_slots) {
+              //DEBUG_PRINT("busy_slots ");
+              //DEBUG_PRINT(busy_slots);
+              if ( (busy_slots+1) + SLOTS_TO_KEEP_FREE > handle->frames.max_i_frames ) {
+                  //DEBUG_PRINT(" waiting ");
+                  readyToSend = false;
+              }
+              //DEBUG_PRINTLN();
+          }
+      }
 
       if(readyToSend && getStatus() == TINY_SUCCESS) {
         int result = tinyproto::IFd::write(out_packet);
