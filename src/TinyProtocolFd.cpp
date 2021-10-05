@@ -42,7 +42,7 @@ void IFd::onSendInternal(void *handle, uint8_t *pdata, int size)
     (reinterpret_cast<IFd *>(handle))->onSend(pdata, size);
 }
 
-void IFd::begin()
+void IFd::begin(uint8_t numRetries, uint16_t retryTimeout)
 {
     tiny_fd_init_t init{};
     init.pdata = this;
@@ -52,8 +52,8 @@ void IFd::begin()
     init.buffer_size = m_bufferSize;
     init.window_frames = m_window;
     init.send_timeout = m_sendTimeout;
-    init.retry_timeout = 200;
-    init.retries = 2;
+    init.retry_timeout = retryTimeout;
+    init.retries = numRetries;
     init.crc_type = m_crc;
 
     tiny_fd_init(&m_handle, &init);

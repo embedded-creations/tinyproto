@@ -22,13 +22,15 @@
 #define RANDOM_READ_ERRORS 1000 // smaller number (min size S) introduces more errors, 0 disables
 #define RANDOM_WRITE_ERRORS 1000 // smaller number (min size S) introduces more errors, 0 disables
 
+#define NUM_RETRIES 5 // tinyproto default of 2 is too small when there's a lot of errors
+
 typedef void (*MidUpdateCallbackTp)(void);
 
 template <int S> class FdStream: public tinyproto::IFd, public Stream
 {
 public:
     FdStream(Stream &stream)
-        : tinyproto::IFd(m_data, FD_MIN_BUF_SIZE(S,3)), // TODO: #define 3
+        : tinyproto::IFd(m_data, FD_MIN_BUF_SIZE(S, IFD_DEFAULT_WINDOW_SIZE)),
           Stream(),
           proto_stream(&stream),
           rx_stream(S*3),
@@ -48,7 +50,7 @@ public:
       // Crc16 is much better than checksum at finding errors
       enableCrc16();
 
-      tinyproto::IFd::begin();
+      tinyproto::IFd::begin(NUM_RETRIES);
 
 #if 1
       mtu = S;
@@ -241,7 +243,7 @@ public:
     }
 
 private:
-    TINY_ALIGNED_STRUCT uint8_t m_data[FD_MIN_BUF_SIZE(S,3)]{}; // TODO: #define 3
+    TINY_ALIGNED_STRUCT uint8_t m_data[FD_MIN_BUF_SIZE(S, IFD_DEFAULT_WINDOW_SIZE)]{};
     Stream * proto_stream;
     LoopbackStream rx_stream;
     tinyproto::Packet<S> out_packet;

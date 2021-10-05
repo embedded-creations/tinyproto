@@ -36,6 +36,8 @@
 #include <stdlib.h>
 #endif
 
+#define IFD_DEFAULT_WINDOW_SIZE 3
+
 namespace tinyproto
 {
 
@@ -75,7 +77,7 @@ public:
      * Use this method if you want to control write and read data by yourself
      * @return None
      */
-    void begin();
+    void begin(uint8_t numRetries = 2, uint16_t retryTimeout = 200);
 
     /**
      * Resets protocol state.
@@ -283,7 +285,7 @@ private:
     uint16_t m_sendTimeout = 0;
 
     /** Limit window to only 3 frames for small controllers by default */
-    uint8_t m_window = 3;
+    uint8_t m_window = IFD_DEFAULT_WINDOW_SIZE;
 
     /** Callback, when new frame is received */
     void (*m_onReceive)(void *userData, IPacket &pkt) = nullptr;
