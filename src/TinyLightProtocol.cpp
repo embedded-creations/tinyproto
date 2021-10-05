@@ -110,13 +110,15 @@ bool Light::enableCrc32()
 
 static int writeToSerial(void *p, const void *b, int s)
 {
-    int result = Serial.write((const uint8_t *)b, s);
+    (void)p; // get rid of unused variable warning
+    int result = Serial.write((const char *)b, s);
     return result;
 }
 
 static int readFromSerial(void *p, void *b, int s)
 {
-    int length = Serial.readBytes((uint8_t *)b, s);
+    (void)p; // get rid of unused variable warning
+    int length = Serial.readBytes((char *)b, s);
     return length;
 }
 
