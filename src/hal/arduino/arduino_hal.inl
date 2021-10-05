@@ -17,6 +17,14 @@
     along with Protocol Library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if defined(ARDUINO)
+#if ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+#endif
+
 #if defined(__TARGET_CPU_CORTEX_M0) || defined(__TARGET_CPU_CORTEX_M0_) || defined(__ARM_ARCH_6M__)
 
 inline static int _iDisGetPrimask(void)
