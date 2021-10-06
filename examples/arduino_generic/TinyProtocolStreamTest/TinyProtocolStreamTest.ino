@@ -1,6 +1,7 @@
 #include <TinyProtocolStream.h>
 
-FdStream<64> proto(Serial2);
+FdStream<64> proto(Serial2); // 64 is the number of bytes per message, default 3x messages can be queued
+//FdStream<64, 2048> proto(Serial2); // if you want a larger RX buffer size than 3x number of bytes per message, add the total buffer as a second template parameter
 
 //uint8_t serialExtraRxBuffer[4096];
 
