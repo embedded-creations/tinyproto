@@ -1,3 +1,41 @@
+## TinyProtocolStream Fork of tinyproto
+
+This fork of tinyproto adds a new TinyProtocolStream class that encapsulates the (in my opinion) difficult to use tinyproto full duplex communication class (with error checking and retries) into an easy to use and familiar Arduino Stream class.  This has been tested by artificially introducing frequent communication errors with a loopback test (example code coming soon) and with a real world project and in both cases the Stream data comes through without errors.
+
+I used the ESP32 and Teensy 4.1 for testing (Teensy 4.1 <-> Teensy 4.1, and Teensy 4.1 <-> ESP32)
+
+I'm happy for this code to be merged into tinyproto if there's [interest by lexus2k](https://github.com/lexus2k/tinyproto/issues/24)
+
+### Getting Started
+
+Check out the `examples/arduino_generic/TinyProtocolStreamTest/` example
+
+### Enabling Debug Messages
+
+- `src/proto/fd/tiny_fd.c`
+    - Set `TINY_FD_DEBUG` to 1
+- `src/hal/tiny_debug.h`
+    - Set `TINY_LOG_LEVEL_DEFAULT` to a level _one greater than_ the log level you want to see printed
+    - Set `TINY_DEBUG` to 1
+- `src/TinyProtocolStream.h`
+    - change `DEBUG_PRINT*` macros
+- To change serial port on Teensy:
+    - `src/hal/arduino_hal.h`
+    - Update the serial write function in `_write()`
+- To change serial port on ESP32:
+    - Add a line like this (which sets output to Serial port 1) to each thread that calls tinyproto:
+    - `stderr = fopen("/dev/uart/1", "w");`
+
+### Note on Teensy Debug Messages
+
+tinypico uses `fprintf(stderr)` for printing debug messages, but this seems to be broken on the Teensy.  `%08lu` or even `%8lu` results in `0`'s being printed instead of the value.` %lu` doesn't work either as part of a longer string, the value is printed but nothing else following it.  This fork uses `printf()` for the Teensy instead
+
+
+### Introducing Errors for testing robustness
+
+- set `RANDOM_READ_ERRORS` and/or `RANDOM_WRITE_ERRORS` to e.g. 1000 in TinyProtocolStream.h, and edit the `DEBUG_PRINT*` macros so you can see when errors were introduced
+
+------
 
 ![Tiny Protocol](.travis/tinylogo.svg)<br>
 [![Build Status](https://circleci.com/gh/lexus2k/tinyproto.svg?style=svg)](https://circleci.com/gh/lexus2k/tinyproto)
