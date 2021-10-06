@@ -9,13 +9,17 @@
 #include <LoopbackStream.h>
 
 #if (defined(ESP8266) || defined(ESP32))
-  #define DEBUG_PRINT(...) Serial1.print(__VA_ARGS__)
-  #define DEBUG_PRINTLN(...) Serial1.println(__VA_ARGS__)
+  //#define DEBUG_PRINT(...) Serial1.print(__VA_ARGS__)
+  //#define DEBUG_PRINTLN(...) Serial1.println(__VA_ARGS__)
   //#define DEBUG_PRINT(...) Serial.print(__VA_ARGS__)
   //#define DEBUG_PRINTLN(...) Serial.println(__VA_ARGS__)
+  #define DEBUG_PRINT(...)
+  #define DEBUG_PRINTLN(...)
 #else
-  #define DEBUG_PRINT(...) SerialUSB1.print(__VA_ARGS__)
-  #define DEBUG_PRINTLN(...) SerialUSB1.println(__VA_ARGS__)
+  //#define DEBUG_PRINT(...) SerialUSB1.print(__VA_ARGS__)
+  //#define DEBUG_PRINTLN(...) SerialUSB1.println(__VA_ARGS__)
+  #define DEBUG_PRINT(...)
+  #define DEBUG_PRINTLN(...)
 #endif
 
 #define SLOTS_TO_KEEP_FREE 2
