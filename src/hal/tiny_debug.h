@@ -49,7 +49,7 @@ extern "C"
 #endif
 
 #if TINY_DEBUG
-    #if defined(__arm__) && defined(CORE_TEENSY)
+    #if defined(__arm__) && defined(TEENSYDUINO) // defined(CORE_TEENSY) is only available after #include "Arduino.h"
         // fprintf is broken on Teensy: only prints first parameter and can't handle %08lu (%04lu works)
         #define TINY_LOG(lvl, fmt, ...)                                                                                        \
             {                                                                                                                  \
