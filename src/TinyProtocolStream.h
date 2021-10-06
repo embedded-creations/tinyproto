@@ -22,25 +22,25 @@
 #define RANDOM_READ_ERRORS 1000 // smaller number (min size S) introduces more errors, 0 disables
 #define RANDOM_WRITE_ERRORS 1000 // smaller number (min size S) introduces more errors, 0 disables
 
-#define NUM_RETRIES 5 // tinyproto default of 2 is too small when there's a lot of errors
+#define DEFAULT_NUM_RETRIES 5 // tinyproto default of 2 is too small when there's a lot of errors
 
 typedef void (*MidUpdateCallbackTp)(void);
 
-template <int S> class FdStream: public tinyproto::IFd, public Stream
+template <int S, int rxBufferSize = S*IFD_DEFAULT_WINDOW_SIZE> class FdStream: public tinyproto::IFd, public Stream
 {
 public:
     FdStream(Stream &stream)
         : tinyproto::IFd(m_data, FD_MIN_BUF_SIZE(S, IFD_DEFAULT_WINDOW_SIZE)),
           Stream(),
           proto_stream(&stream),
-          rx_stream(S*3),
+          rx_stream(min(rxBufferSize, S*IFD_DEFAULT_WINDOW_SIZE)),
           readyToSend(false),
           write_timeout(0),
           midUpdateCallback(NULL)
     {
     }
 
-    void begin() {
+    void begin(uint8_t numRetries = DEFAULT_NUM_RETRIES, uint16_t retryTimeout = IFD_DEFAULT_RETRY_TIMEOUT) {
       setUserData(this);
       setReceiveCallback( onReceive );
 
@@ -50,7 +50,7 @@ public:
       // Crc16 is much better than checksum at finding errors
       enableCrc16();
 
-      tinyproto::IFd::begin(NUM_RETRIES);
+      tinyproto::IFd::begin(numRetries, retryTimeout);
 
 #if 1
       mtu = S;

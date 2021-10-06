@@ -37,6 +37,8 @@
 #endif
 
 #define IFD_DEFAULT_WINDOW_SIZE 3
+#define IFD_DEFAULT_NUM_RETRIES 2
+#define IFD_DEFAULT_RETRY_TIMEOUT 200
 
 namespace tinyproto
 {
@@ -77,7 +79,7 @@ public:
      * Use this method if you want to control write and read data by yourself
      * @return None
      */
-    void begin(uint8_t numRetries = 2, uint16_t retryTimeout = 200);
+    void begin(uint8_t numRetries = IFD_DEFAULT_NUM_RETRIES, uint16_t retryTimeout = IFD_DEFAULT_RETRY_TIMEOUT);
 
     /**
      * Resets protocol state.
