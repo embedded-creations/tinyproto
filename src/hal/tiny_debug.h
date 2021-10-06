@@ -49,11 +49,20 @@ extern "C"
 #endif
 
 #if TINY_DEBUG
-#define TINY_LOG(lvl, fmt, ...)                                                                                        \
-    {                                                                                                                  \
-        if ( lvl < g_tiny_log_level )                                                                                  \
-            fprintf(stderr, "%08" PRIu32 " ms: " fmt, tiny_millis(), ##__VA_ARGS__);                                   \
-    }
+    #if defined(__arm__) && defined(CORE_TEENSY)
+        // fprintf is broken on Teensy: only prints first parameter and can't handle %08lu (%04lu works)
+        #define TINY_LOG(lvl, fmt, ...)                                                                                        \
+            {                                                                                                                  \
+                if ( lvl < g_tiny_log_level )                                                                                  \
+                    printf("%08" PRIu32 " ms: " fmt, (uint32_t)tiny_millis(), ##__VA_ARGS__);                         \
+            }
+    #else
+        #define TINY_LOG(lvl, fmt, ...)                                                                                        \
+            {                                                                                                                  \
+                if ( lvl < g_tiny_log_level )                                                                                  \
+                    fprintf(stderr, "%08" PRIu32 " ms: " fmt, (uint32_t)tiny_millis(), ##__VA_ARGS__);                                   \
+            }
+    #endif
 #else
 #define TINY_LOG(...)
 #endif

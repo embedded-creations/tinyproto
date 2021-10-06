@@ -25,6 +25,19 @@
 #endif
 #endif
 
+#if defined(__arm__) && defined(CORE_TEENSY)
+
+// https://forum.pjrc.com/threads/29083-Using-Serial-println-in-C-code
+int _write(int file, char *ptr, int len)
+{
+    // TODO: fix "implicit declaration of function 'usb_serial_write'" warning
+    usb_serial_write(ptr, len); // Teensy Serial
+    //usb_serial2_write(ptr, len); // Teensy SerialUSB1
+    return 0;
+}
+
+#endif
+
 #if defined(__TARGET_CPU_CORTEX_M0) || defined(__TARGET_CPU_CORTEX_M0_) || defined(__ARM_ARCH_6M__)
 
 inline static int _iDisGetPrimask(void)

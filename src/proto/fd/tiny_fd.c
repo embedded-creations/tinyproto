@@ -742,7 +742,7 @@ static void tiny_fd_connected_on_idle_timeout(tiny_fd_handle_t handle)
             LOG(TINY_LOG_WRN,
                 "[%p] Timeout, resending unconfirmed frames: last(%" PRIu32 " ms, now(%" PRIu32 " ms), timeout(%" PRIu32
                 " ms))\n",
-                handle, handle->frames.last_i_ts, tiny_millis(), handle->retry_timeout);
+                handle, (uint32_t)handle->frames.last_i_ts, tiny_millis(), (uint32_t)handle->retry_timeout);
             handle->frames.retries--;
             // Do not use mutex for confirm_ns value as it is byte-value
             __resend_all_unconfirmed_frames(handle, 0, handle->frames.confirm_ns);
