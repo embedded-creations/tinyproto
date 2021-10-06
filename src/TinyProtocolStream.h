@@ -19,8 +19,8 @@
 #endif
 
 #define SLOTS_TO_KEEP_FREE 2
-#define RANDOM_READ_ERRORS 1000 // smaller number (min size S) introduces more errors, 0 disables
-#define RANDOM_WRITE_ERRORS 1000 // smaller number (min size S) introduces more errors, 0 disables
+#define RANDOM_READ_ERRORS 0 // smaller number (min size S) introduces more errors, 0 disables
+#define RANDOM_WRITE_ERRORS 0 // smaller number (min size S) introduces more errors, 0 disables
 
 #define DEFAULT_NUM_RETRIES 5 // tinyproto default of 2 is too small when there's a lot of errors
 
