@@ -1,7 +1,16 @@
+/*
+  This example can be run on two Arduino devices connected via a Stream (e.g. Serial port)
+
+  Data received by STREAM_TERMINAL is forwarded to another micro using tinyproto, and vice versa
+
+  Try opening two serial console windows to the two devices, and paste a long string (much longer than the tinyproto bytes per message)
+    to one window, and see it received by the other window without errors.  This should work even if
+    errors on STREAM_TP are artifically introduced (see the main README)
+*/
+
 #include <TinyProtocolStream.h>
 
-
-// STREAM_TERMINAL is forwarded to another micro under tinyproto, data received from tinyproto is printed here
+// Data received by STREAM_TERMINAL is forwarded to another micro using tinyproto, and vice versa
 #define STREAM_TERMINAL Serial
 
 // STREAM_TP communicates with another micro using tinyproto
