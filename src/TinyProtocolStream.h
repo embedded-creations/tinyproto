@@ -105,8 +105,10 @@ public:
     void onReceive(tinyproto::IPacket &pkt) {
       for(size_t i=0; i<pkt.size(); i++) {
         // TODO: handle overflow
-        if(rx_stream.write(pkt.getByte()) < 1)
-          DEBUG_PRINTLN("rx_stream.write() fail!");
+        if(rx_stream.write(pkt.getByte()) < 1) {
+          DEBUG_PRINTLN("onReceive(): rx_stream.write() fail!");
+          return;
+        }
       }
     }
 
