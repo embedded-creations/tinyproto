@@ -5,7 +5,7 @@
 // We need this hack for very small controllers.
 #include <proto/fd/tiny_fd_int.h>
 
-// TODO: incorporate modified version into this library?
+// TinyProtocolStream requires a modified version of the ArduinoBufferedStreams Library: https://github.com/embedded-creations/ArduinoBufferedStreams
 #include <LoopbackStream.h>
 
 #if (defined(ESP8266) || defined(ESP32))

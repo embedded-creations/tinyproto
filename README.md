@@ -8,7 +8,9 @@ I'm happy for this code to be merged into tinyproto if there's [interest by lexu
 
 ### Getting Started
 
-Check out the `examples/arduino_generic/TinyProtocolStreamTest/` example
+- Manually download and install this forked library in your Arduino Libraries folder
+- Manually download and install the forked version of the ArduinoBufferedStreams Library: https://github.com/embedded-creations/ArduinoBufferedStreams
+- Check out the `examples/arduino_generic/TinyProtocolStreamTest/` example
 
 ### Enabling Debug Messages
 
@@ -34,6 +36,25 @@ tinypico uses `fprintf(stderr)` for printing debug messages, but this seems to b
 ### Introducing Errors for testing robustness
 
 - set `RANDOM_READ_ERRORS` and/or `RANDOM_WRITE_ERRORS` to e.g. 1000 in TinyProtocolStream.h, and edit the `DEBUG_PRINT*` macros so you can see when errors were introduced
+
+### How this works under the hood
+
+TinyProtocolStream has a write buffer that can be written to with `print*()`/`write()/availableForWrite()` methods like other Stream/Print objects, and once full or after a timeout occurs, the message is queued up for sending with tinyproto.  Messages received from tinyproto are known to be error checked and in sequence, and are added to a receive buffer and can be read using the `read()` method like a normal Stream object.
+
+tinyproto Full Duplex has a buffer of three messages by default, and I found with frequent errors introduced (`RANDOM_READ_ERRORS = RANDOM_WRITE_ERRORS = 1000`) there needed to be two messages left free in the buffer for retries, and numRetries needed to be set to 5 (default 2) to get reliable communication.  These parameters are set automatically by TinyProtocolStream, but you can tweak values if you want, to try to increase throughput by increasing the number of queued messages.
+
+### TODOs
+
+- Add API to see status of connection
+    - I added a basic `getStatus()` method already as a wrapper for `tiny_fd_get_status()`
+    - I'd like to know if I lost any data so I can reset the protocol running on top of tinyproto
+- Add loopback examples that can run on Arduino
+- Merge ArduinoBufferedStream into main library, or fork and publish library so it can be automatically installed
+- Make write buffer size configurable, so more than one message can be buffered at a time
+    - will require adding a new template parameter
+- Allow increasing tinyproto window size (right now fixed at `IFD_DEFAULT_WINDOW_SIZE` == 3)
+    - will require adding a new template parameter
+- Use a read timeout and call `loop()` from inside `read()` instead of only accessing previously received data?
 
 ------
 
