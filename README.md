@@ -41,7 +41,7 @@ tinypico uses `fprintf(stderr)` for printing debug messages, but this seems to b
 
 ### How this works under the hood
 
-TinyProtocolStream has a write buffer that can be written to with `print*()`/`write()/availableForWrite()` methods like other Stream/Print objects, and once full or after a timeout occurs, the message is queued up for sending with tinyproto.  Messages received from tinyproto are known to be error checked and in sequence, and are added to a receive buffer and can be read using the `read()` method like a normal Stream object.
+TinyProtocolStream has a write buffer that can be written to with `print*()` / `write()` / `availableForWrite()` methods like other Stream/Print objects, and once full or after a timeout occurs, the message is queued up for sending with tinyproto.  Messages received from tinyproto are known to be error checked and in sequence, and are added to a receive buffer and can be read using the `read()` method like a normal Stream object.
 
 tinyproto Full Duplex has a buffer of three messages by default, and I found with frequent errors introduced (`RANDOM_READ_ERRORS = RANDOM_WRITE_ERRORS = 1000`) there needed to be two messages left free in the buffer for retries, and numRetries needed to be set to 5 (default 2) to get reliable communication.  These parameters are set automatically by TinyProtocolStream, but you can tweak values if you want, to try to increase throughput by increasing the number of queued messages.
 
@@ -50,7 +50,7 @@ tinyproto Full Duplex has a buffer of three messages by default, and I found wit
 - Add API to see status of connection
     - I added a basic `getStatus()` method already as a wrapper for `tiny_fd_get_status()`
     - I'd like to know if I lost any data so I can reset the protocol running on top of tinyproto
-- Merge ArduinoBufferedStream into main library, or fork and publish library so it can be automatically installed
+- [Merge ArduinoBufferedStream into main library](https://github.com/paulo-raca/ArduinoBufferedStreams/pull/7), or fork and publish library so it can be automatically installed
 - Make write buffer size configurable, so more than one message can be buffered at a time
     - will require adding a new template parameter
 - Allow increasing tinyproto window size (right now fixed at `IFD_DEFAULT_WINDOW_SIZE` == 3)
